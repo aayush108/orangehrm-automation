@@ -1,0 +1,16 @@
+{
+    "minimalEmployee": {
+        "firstName": "James",
+        "lastName": "Bond"
+    },
+    "fullEmployee": {
+        "firstName": "James",
+        "lastName": "Bond",
+        "employeeId": "007",
+        "licenseNumber": "LIC-AUTO-98765",
+        "maritalStatus": "Married",
+        "dateOfBirth": "1990-01-15",
+        "otherId": "OTH-12345",
+        "testField": "Test Value"
+    }
+}

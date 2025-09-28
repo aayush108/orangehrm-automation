@@ -1,0 +1,10 @@
+{
+  "validSearch": {
+    "employeeName": "Alice",
+    "employeeId": "007"
+  },
+  "invalidSearch": {
+    "employeeName": "Nonexistent",
+    "employeeId": "99999"
+  }
+}

@@ -8,9 +8,13 @@
         "lastName": "Bond",
         "employeeId": "007",
         "licenseNumber": "LIC-AUTO-98765",
+        "licenseExpiryDate": "2025-12-31",
         "maritalStatus": "Married",
         "dateOfBirth": "1990-01-15",
+        "gender": "Male",
+        "nationality": "American",
+        "bloodType": "O+",
         "otherId": "OTH-12345",
-        "testField": "Test Value"
+        "testField": "TestValue"
     }
 }

@@ -33,7 +33,7 @@ export default defineConfig({
     // ignoreHTTPSErrors: true,
     screenshot: 'only-on-failure',
     launchOptions: {
-      slowMo: 400, // Slows down each operation by 400ms
+      slowMo: 600, // Slows down each operation by 400ms
     },
   },
 

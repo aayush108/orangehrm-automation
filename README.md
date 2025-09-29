@@ -29,7 +29,7 @@ Automated end-to-end testing for the OrangeHRM web application using [Playwright
 
 1. **Clone the repository**
    ```sh
-   git clone <repo-url>
+   git clone git@github.com:aayush108/orangehrm-automation.git
    cd orangehrm-automation
    ```
 

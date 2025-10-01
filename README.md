@@ -50,7 +50,7 @@ Automated end-to-end testing for the OrangeHRM web application using [Playwright
 
 - **Run all tests**
   ```sh
-  npx playwright test
+  npx playwright test --workers 1
   ```
 
 - **Run a specific test file**

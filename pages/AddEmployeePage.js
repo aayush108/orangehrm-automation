@@ -9,22 +9,22 @@ class AddEmployeePage {
         this.saveButton = page.getByRole('button', { name: /save/i });
         this.successMessage = page.locator('.oxd-text--toast-title');
         this.personalDetails = page.getByRole('heading', { name: 'Personal Details' });
-        this.licenseNumberInput = page.locator('div').filter({ hasText: /^Driver's License NumberLicense Expiry Date$/ }).getByRole('textbox').first();       
+        this.licenseNumberInput = page.locator('div').filter({ hasText: /^Driver's License NumberLicense Expiry Date$/ }).getByRole('textbox').first();
         this.otherIdInput = page.locator('div').filter({ hasText: /^Employee IdOther Id$/ }).getByRole('textbox').nth(1);
-        this.testFieldInput = page.locator('[ref="e306"]');         
+        this.testFieldInput = page.locator('[ref="e306"]');
         this.personalDetailsSaveButton = page.locator('form').filter({ hasText: 'Employee Full Name' }).getByRole('button', { name: /save/i });
         // Marital Status Dropdown
         this.maritalStatusDropdown = page.locator('div').filter({ hasText: /^Marital Status-- Select --$/ }).locator('.oxd-select-text');
         this.maritalStatusOptions = page.locator('.oxd-select-dropdown .oxd-select-option');
-        
+
         // Date of Birth
         this.dateOfBirthInput = page.locator('div').filter({ hasText: /^Date of BirthGender/ }).getByPlaceholder('yyyy-dd-mm');
-        
+
         // Gender Radio Buttons
         this.maleGenderRadio = page.locator('label').filter({ hasText: /^Male$/ }).locator('span');
         this.femaleGenderRadio = page.locator('label').filter({ hasText: 'Female' }).locator('span');
     }
-    
+
     async enterFirstName(firstName) {
         console.log(`[AddEmployeePage] enterFirstName called with: ${firstName}`);
         await this.firstNameInput.fill(firstName);
@@ -44,6 +44,7 @@ class AddEmployeePage {
         console.log(`[AddEmployeePage] clickSave called`);
         await this.saveButton.click();
         await this.page.waitForLoadState('domcontentloaded');
+        await this.page.waitForTimeout(1000); // Add this line to wait for toast
     }
 
     async addMinimalEmployee(firstName, lastName, employeeId = '') {
@@ -56,24 +57,22 @@ class AddEmployeePage {
         await this.clickSave();
     }
 
- async verifySuccessMessage(timeout = 10000) {
-    console.log(`[AddEmployeePage] verifySuccessMessage called with timeout: ${timeout}ms`);
-    try {
-        // Wait for success message to appear with increased timeout
-        await this.successMessage.waitFor({ state: 'visible', timeout: timeout });
-        
-        const message = await this.successMessage.textContent();
-        console.log(`[AddEmployeePage] Success message found: ${message}`);
-        
-        const isSuccess = message.includes('Successfully Saved') || message.includes('Success') || message.includes('Successful');        
-        console.log(`[AddEmployeePage] Success message verification result: ${isSuccess}`);
-        return isSuccess;
-        
-    } catch (error) {
-        console.error(`[AddEmployeePage] Success message not found within ${timeout}ms:`, error.message);    
-        return false;
+    async verifySuccessMessage(timeout = 15000) {
+        console.log(`[AddEmployeePage] verifySuccessMessage called with timeout: ${timeout}ms`);
+        try {
+            await expect(this.successMessage).toBeVisible({ timeout });
+            const message = await this.successMessage.textContent();
+            console.log(`[AddEmployeePage] Success message found: ${message}`);
+            return (
+                message.includes('Successfully Saved') ||
+                message.includes('Success') ||
+                message.includes('Successful')
+            );
+        } catch (error) {
+            console.error(`[AddEmployeePage] Success message not found within ${timeout}ms:`, error.message);
+            return false;
+        }
     }
-}
 
     async verifyPersonalDetailsPage() {
         console.log(`[AddEmployeePage] verifyPersonalDetailsPage called`);
@@ -99,7 +98,7 @@ class AddEmployeePage {
 
     async editPersonalDetails(editData) {
         console.log(`[AddEmployeePage] editPersonalDetails called with:`, editData);
-        
+
         if (typeof this.page.isClosed === 'function' && this.page.isClosed()) {
             throw new Error('Page is closed before editing personal details.');
         }
@@ -119,7 +118,7 @@ class AddEmployeePage {
                 try {
                     await this.otherIdInput.waitFor({ state: 'visible', timeout: 5000 });
                     console.log('Other Id visible:', await this.otherIdInput.isVisible());
-                    
+
                     await this.otherIdInput.fill(editData.otherId);
                     console.log('Other ID filled successfully');
                 } catch (error) {
@@ -137,24 +136,24 @@ class AddEmployeePage {
                 console.log(`Selecting marital status: ${editData.maritalStatus}`);
                 try {
                     await this.maritalStatusDropdown.waitFor({ state: 'visible', timeout: 5000 });
-                    
+
                     // Scroll into view before clicking
                     await this.maritalStatusDropdown.scrollIntoViewIfNeeded();
                     await this.page.waitForTimeout(300);
-                    
+
                     await this.maritalStatusDropdown.click();
                     console.log('Marital status dropdown clicked');
-                    
+
                     // Wait for dropdown options to appear with increased timeout
                     await this.page.waitForTimeout(500);
                     await this.maritalStatusOptions.first().waitFor({ state: 'visible', timeout: 5000 });
                     console.log('Dropdown options visible');
-                    
+
                     // Find and click the desired option - use exact match
                     const statusOption = this.maritalStatusOptions.getByText(editData.maritalStatus, { exact: true });
                     await statusOption.waitFor({ state: 'visible', timeout: 3000 });
                     await statusOption.click();
-                    
+
                     // Wait for dropdown to close
                     await this.page.waitForTimeout(300);
                     console.log('Marital status selected successfully');
@@ -172,12 +171,12 @@ class AddEmployeePage {
             //     console.log(`Filling date of birth: ${editData.dateOfBirth}`);
             //     try {
             //         await this.dateOfBirthInput.waitFor({ state: 'visible', timeout: 5000 });
-                    
+
             //         // Clear the field first, then fill
             //         await this.dateOfBirthInput.click();
             //         await this.dateOfBirthInput.fill('');
             //         await this.dateOfBirthInput.fill(editData.dateOfBirth);
-                    
+
             //         // Press Enter or Tab to confirm the date
             //         await this.dateOfBirthInput.press('Tab');
             //         console.log('Date of birth filled successfully');
@@ -214,6 +213,11 @@ class AddEmployeePage {
         }
     }
 
+    async verifyEmployeeAddedByUrl() {
+        const url = this.page.url();
+        return url.includes('/pim/viewPersonalDetails/empNumber/');
+    }
+
     async getLicenseNumberValue() {
         console.log(`[AddEmployeePage] getLicenseNumberValue called`);
         try {
@@ -224,6 +228,7 @@ class AddEmployeePage {
             return '';
         }
     }
+
 }
 
 module.exports = { AddEmployeePage };

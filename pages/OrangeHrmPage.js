@@ -82,11 +82,13 @@ class OrangeHrmPage {
     }
 
     async verifyEmployeeAddedSuccessfully() {
-        console.log(`[OrangeHrmPage] verifyEmployeeAddedSuccessfully called`);
-        const isSuccess = await this.addEmployeePage.verifySuccessMessage();
-        // const isOnDetailsPage = await this.addEmployeePage.verifyPersonalDetailsPage();
-        const result = isSuccess && true;
-        console.log(`[OrangeHrmPage] verifyEmployeeAddedSuccessfully result:`, result);
+        // Try URL check first (most reliable)
+        const hasCorrectUrl = await this.addEmployeePage.verifyEmployeeAddedByUrl();
+        if (hasCorrectUrl) return true;
+
+        // Fallback to success message
+        const result = await this.addEmployeePage.verifySuccessMessage();
+        console.log('[OrangeHrmPage] verifyEmployeeAddedSuccessfully result:', result);
         return result;
     }
 

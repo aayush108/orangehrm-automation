@@ -23,6 +23,7 @@ class AddEmployeePage {
         // Gender Radio Buttons
         this.maleGenderRadio = page.locator('label').filter({ hasText: /^Male$/ }).locator('span');
         this.femaleGenderRadio = page.locator('label').filter({ hasText: 'Female' }).locator('span');
+        this.requiredFieldError = page.getByText('Required', { exact: true });
     }
 
     async enterFirstName(firstName) {
@@ -74,6 +75,19 @@ class AddEmployeePage {
         }
     }
 
+     async verifyRequiredErrorMessage(timeout = 15000) {
+        console.log(`[AddEmployeePage] verifyErrorMessage called with timeout: ${timeout}ms`);
+        try {
+            await expect(this.requiredFieldError).toBeVisible({ timeout });
+            const message = await this.requiredFieldError.textContent();
+            console.log(`[AddEmployeePage] Required field error message found`);
+            return (message.includes('Required'));
+        } catch (error) {
+            console.error(`[AddEmployeePage] Required field error message not found`, error.message);
+            return false;
+        }
+    }
+    
     async verifyPersonalDetailsPage() {
         console.log(`[AddEmployeePage] verifyPersonalDetailsPage called`);
         await expect(this.personalDetails).toBeVisible();

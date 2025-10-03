@@ -15,7 +15,7 @@ test.describe('PIM Module Tests', () => {
         await orangeHrm.logout();
     });
 
-    test('Add New Employee with Minimal Details', {tag: ['@smoke', '@regression']}, async ({ page }) => {
+    test('Add New Employee with Minimal Details', { tag: ['@smoke', '@regression'] }, async ({ page }) => {
 
         const employeeData = orangeHrm.getEmployeeData('minimalEmployee');
 
@@ -43,7 +43,7 @@ test.describe('PIM Module Tests', () => {
 
     });
 
-    test('Search and Validate Existing Employee', {tag: '@regression'}, async ({ page }) => {
+    test('Search and Validate Existing Employee', { tag: '@regression' }, async ({ page }) => {
 
         const searchData = orangeHrm.getEmployeeData('fullEmployee');
 
@@ -59,7 +59,7 @@ test.describe('PIM Module Tests', () => {
 
     });
 
-    test('Edit Employee Personal Details', {tag: '@smoke'}, async ({ page }) => {
+    test('Edit Employee Personal Details', { tag: '@smoke' }, async ({ page }) => {
         test.slow()
         // const orangeHrm = new OrangeHrmPage(page);
         const employeeData = orangeHrm.getEmployeeData('minimalEmployee');
@@ -89,9 +89,54 @@ test.describe('PIM Module Tests', () => {
     });
 });
 
+test.describe('PIM Module - Negative Tests', () => {
+    let orangeHrm;
+    test.beforeEach(async ({ page }) => {
+        orangeHrm = new OrangeHrmPage(page);
+        await orangeHrm.login('validUser');
+    });
+
+    test.afterEach(async () => {
+        await orangeHrm.logout();
+    });
+
+    test('Cannot add employee without first name', { tag: ['@smoke', '@regression'] }, async ({ page }) => {
+        await test.step('Navigate to Add Employee page', async () => {
+            await orangeHrm.dashboardPage.navigateToPIM();
+            await orangeHrm.pimPage.clickAddEmployee();
+        });
+
+        await test.step('Try to save without first name', async () => {
+            await orangeHrm.addEmployeePage.enterLastName('TestLast');
+            await orangeHrm.addEmployeePage.clickSave();
+        });
+
+        await test.step('Verify validation error appears', async () => {
+            const errorVisible = await orangeHrm.addEmployeePage.verifyRequiredErrorMessage();
+            expect(errorVisible, 'Validation error should be displayed').toBeTruthy();
+        });
+    });
+
+    test('Search with non-existent employee returns no results', { tag: '@regression'}, async ({ page }) => {
+        const searchData = {
+            employeeName: 'NonExistentEmployee12345',
+            employeeId: ''
+        };
+
+        await test.step('Search for non-existent employee', async () => {
+            await orangeHrm.searchEmployee(searchData);
+        });
+
+        await test.step('Verify no results found', async () => {
+            const resultCount = await orangeHrm.pimPage.getSearchResultsCount();
+            expect(resultCount, 'Should return 0 results for non-existent employee').toBe(0);
+        });
+    });
+});
+
 test.describe('Login Failure Tests', () => {
     for (const user of INVALID_USERS) {
-        test(`User ${user.firstName} ${user.lastName} fails to login`, {tag: ['@smoke', '@regression']}, async ({ page }) => {
+        test(`User ${user.firstName} ${user.lastName} fails to login`, { tag: ['@smoke', '@regression'] }, async ({ page }) => {
             const orangeHrm = new OrangeHrmPage(page);
 
             await test.step('Attempt login with invalid credentials', async () => {

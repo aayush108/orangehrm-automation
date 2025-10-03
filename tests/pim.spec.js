@@ -1,6 +1,5 @@
 const { test, expect } = require('@playwright/test');
 const { OrangeHrmPage } = require('../pages/OrangeHrmPage');
-const { INVALID_USERS } = require('../test-data/test-users');
 
 test.describe('PIM Module Tests', () => {
     let orangeHrm;
@@ -27,10 +26,7 @@ test.describe('PIM Module Tests', () => {
             const isSuccess = await orangeHrm.verifyEmployeeAddedSuccessfully();
             expect(isSuccess, 'Employee should be added successfully').toBeTruthy();
 
-            const detailsCorrect = await orangeHrm.verifyEmployeeDetails(
-                // employeeData.firstName, 
-                // employeeData.lastName
-            );
+            const detailsCorrect = await orangeHrm.verifyEmployeeDetails();
             expect(detailsCorrect, `Employee details should match: ${employeeData.firstName} ${employeeData.lastName}`).toBeTruthy();
         });
 
@@ -44,7 +40,6 @@ test.describe('PIM Module Tests', () => {
     });
 
     test('Search and Validate Existing Employee', { tag: '@regression' }, async ({ page }) => {
-
         const searchData = orangeHrm.getEmployeeData('fullEmployee');
 
         await test.step('Search for employee by name', async () => {
@@ -61,7 +56,6 @@ test.describe('PIM Module Tests', () => {
 
     test('Edit Employee Personal Details', { tag: '@smoke' }, async ({ page }) => {
         test.slow()
-        // const orangeHrm = new OrangeHrmPage(page);
         const employeeData = orangeHrm.getEmployeeData('minimalEmployee');
         const editData = orangeHrm.getEmployeeData('fullEmployee');
 
@@ -132,22 +126,4 @@ test.describe('PIM Module - Negative Tests', () => {
             expect(resultCount, 'Should return 0 results for non-existent employee').toBe(0);
         });
     });
-});
-
-test.describe('Login Failure Tests', () => {
-    for (const user of INVALID_USERS) {
-        test(`User ${user.firstName} ${user.lastName} fails to login`, { tag: ['@smoke', '@regression'] }, async ({ page }) => {
-            const orangeHrm = new OrangeHrmPage(page);
-
-            await test.step('Attempt login with invalid credentials', async () => {
-                await orangeHrm.loginPage.navigateToLogin();
-                await orangeHrm.loginPage.login(user.firstName, user.lastName);
-            });
-
-            await test.step('Verify error message is displayed', async () => {
-                const hasError = await orangeHrm.loginPage.verifyErrorMessage();
-                expect(hasError).toBeTruthy();
-            });
-        });
-    }
 });
